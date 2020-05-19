@@ -89,13 +89,25 @@ func (broadcast *broadcast) Clear(room string) {
 // Send sends given event & args to all the connections in the specified room
 func (broadcast *broadcast) Send(room, event string, args ...interface{}) {
 	// get a read lock
+	//broadcast.lock.RLock()
+	//defer broadcast.lock.RUnlock()
+	//
+	//// iterate through each connection in the room
+	//for _, connection := range broadcast.rooms[room] {
+	//	// emit the event to the connection
+	//	connection.Emit(event, args...)
+	//}
 	broadcast.lock.RLock()
-	defer broadcast.lock.RUnlock()
 
+	var rooms []Conn
 	// iterate through each connection in the room
 	for _, connection := range broadcast.rooms[room] {
-		// emit the event to the connection
-		connection.Emit(event, args...)
+		rooms = append(rooms,connection)
+
+	}
+	broadcast.lock.RUnlock()
+	for _,room := range rooms{
+		room.Emit(event,args...)
 	}
 }
 
